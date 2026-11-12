@@ -1,0 +1,197 @@
+Base de Datos para el proyecto de tópicos
+
+http://localhost:3000/Coleccion-de-Libros-La-Bibloteca:)
+
+Notas de avance de códigos 
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Codigo de Posgres 
+--Tablas para el sistema de Bibloteca
+--Creamos la tabla de estudiantes 
+CREATE TABLE Estudiantes(
+	id_Alumno SERIAL PRIMARY KEY,
+	numeroControl VARCHAR(20),
+	nombre VARCHAR(100),
+	apellidoPaterno VARCHAR(100),
+	apellidoMaterno VARCHAR(100),
+	carrera TEXT 
+);
+
+--Creamos la tabla de Libros
+CREATE TABLE Libros (
+    id_Libro SERIAL PRIMARY KEY,
+    nombre TEXT, 
+    autor TEXT, 
+    editorial VARCHAR(100),
+    id_Genero INT,
+    FOREIGN KEY (id_Genero) REFERENCES Genero(id_Genero)
+);
+
+--Creamos la tabla de Prestamo 
+CREATE TABLE Prestamo(
+	 id_Prestamo SERIAL PRIMARY KEY, 
+	 id_Alumno INT,
+	 id_Libro INT,
+	 FOREIGN KEY (id_Libro) REFERENCES Libros(id_Libro),
+	 FOREIGN KEY (id_Alumno) REFERENCES Estudiantes(id_Alumno),
+	 fechaPrestamo DATE, 
+	 fechaEntrega DATE
+);
+
+--Creamos la tabla de catalogo 
+CREATE TABLE Genero(
+	id_Genero SERIAL PRIMARY KEY,
+	tipoGenero VARCHAR(100)
+);
+
+
+CREATE TABLE Autores (
+    id_Autor SERIAL PRIMARY KEY,
+    nombre VARCHAR(150),
+    nacionalidad VARCHAR(50),
+    activo BOOLEAN DEFAULT TRUE
+);
+
+CREATE TABLE Editoriales (
+    id_Editorial SERIAL PRIMARY KEY,
+    nombre VARCHAR(100),
+    pais VARCHAR(50),
+    activo BOOLEAN DEFAULT TRUE
+);
+
+INSERT INTO Genero(tipoGenero) VALUES 
+	('CienciaFiccion'),
+	('Novelas'),
+	('Fantacia');
+
+INSERT INTO Estudiantes(numeroControl, nombre, apellidoPaterno, apellidoMaterno, carrera) VALUES
+	(23290660, 'Diana Guadalupe', 'Moreno', 'Cisneros', 'Ingeneria Informatica'),
+	(24290701, 'Jonathan Ulises', 'Moreno', 'Cisneros', 'Ingeneria en Sistemas Computacionales'),
+	(23290551, 'Daniel Hassael',  'Mendiola', 'Alonsso', 'Ingeneria Informatica'),
+	(23290364, 'Harry James', 'Potter', 'Granger', 'Ingeneria en Sistemas Computacionales');
+
+INSERT INTO Libros(nombre, autor, editorial, id_Genero) VALUES
+('Cien Años de Soledad', 'Gabriel García Márquez', 'Editorial Sudamericana', 1),
+('Harry Potter y la priedra filosofal', 'J.K Rowling ', 'Salamandra', 2),
+('Las Cronicas de Narnia(El león, la bruja y el ropero)', 'C. S. Lewis', 'Editorial Destino', 3);
+
+INSERT INTO Autores (nombre, nacionalidad, activo) VALUES 
+('Gabriel García Márquez', 'Colombiana', TRUE),
+('J.K. Rowling', 'Británica', TRUE),
+('C.S. Lewis', 'Británica', TRUE);
+
+-- Insertar datos en Editoriales
+INSERT INTO Editoriales (nombre, pais, activo) VALUES 
+('Editorial Sudamericana', 'Argentina', TRUE),
+('Salamandra', 'España', TRUE),
+('Editorial Destino', 'España', TRUE);
+
+--Borrador logico-->borra el redistro donde ejecuta el update lo cual cambia el estado
+UPDATE Libros SET activo = FALSE WHERE id_Libro = $s;
+
+--Consultas con el GET 
+SELECT * FROM Libros WHERE activo = TRUE;
+	
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Libreria> db.Libros.insertOne({id_libro: 1, titulo: "Cien Años de Soledad", autor : "Gabriel García Márquez", editorial : "Editorial Sudamericana"})
+{
+  acknowledged: true,
+  insertedId: ObjectId('6aefa708b44c8dd5b82e7c2c')
+}
+Libreria> db.Libros.find()
+[
+  {
+    _id: ObjectId('6aefa708b44c8dd5b82e7c2c'),
+    id_libro: 1,
+    titulo: 'Cien Años de Soledad',
+    autor: 'Gabriel García Márquez',
+    editorial: 'Editorial Sudamericana'
+  }
+]
+Libreria> db.Editoriales.insertOne({
+|     id_editorial: 1,
+|     contacto_email: "contacto@salamandra.es",
+|     telefono: "+34 91 555 1234",
+|     direccion_fiscal: "Barcelona, España"
+| })
+{
+  acknowledged: true,
+  insertedId: ObjectId('6aefe630b44c8dd5b82e7c2d')
+}
+Libreria> db.Autores.insertOne({
+|     id_autor: 1,
+|     biografia: "Gabriel José de la Concordia García Márquez fue un escritor, guionista, editor y periodista colombiano, referente del realismo mágico.",
+|     premios: ["Premio Nobel de Literatura 1982"]
+| });
+{
+  acknowledged: true,
+  insertedId: ObjectId('6aefe6adb44c8dd5b82e7c2e')
+}
+Libreria> db.Libros.insertMany([
+|   {
+|     id_libro: 2,
+|     titulo: "Harry Potter y la piedra filosofal",
+|     autor: "J.K. Rowling",
+|     editorial: "Salamandra",
+|     sinopsis: "Un niño descubre en su undécimo cumpleaños que es hijo de dos conocidos hechiceros.",
+|     stock: 8
+|   },
+|   {
+|     id_libro: 3,
+|     titulo: "Las Crónicas de Narnia (El león, la bruja y el ropero)",
+|     autor: "C.S. Lewis",
+|     editorial: "Editorial Destino",
+|     sinopsis: "Cuatro hermanos viajan a través de un ropero a un mundo mágico condenado a un invierno eterno.",
+|     stock: 5
+|   }
+| ]);
+{
+  acknowledged: true,
+  insertedIds: {
+    '0': ObjectId('6aefe705b44c8dd5b82e7c2f'),
+    '1': ObjectId('6aefe705b44c8dd5b82e7c30')
+  }
+}
+Libreria> db.Autores.insertOne({
+|     id_autor: 2,
+|     biografia: "Joanne 'Jo' Rowling, conocida como J.K. Rowling, es una escritora y productora de cine británica, mundialmente famosa por la serie Harry Potter.",
+|     premios: ["Premio Hugo", "Orden del Imperio Británico"]
+| });
+{
+  acknowledged: true,
+  insertedId: ObjectId('6aefe744b44c8dd5b82e7c31')
+}
+Libreria> db.Editoriales.insertOne({
+|     id_editorial: 1,
+|     contacto_email: "contacto@sudamericana.com",
+|     direccion: "Buenos Aires, Argentina"
+| });
+{
+  acknowledged: true,
+  insertedId: ObjectId('6aefe75fb44c8dd5b82e7c32')
+}
+Libreria> db.Editoriales.insertOne({
+|     id_editorial: 2,
+|     contacto_email: "info@salamandra.info",
+|     direccion: "Barcelona, España"
+| });
+{
+  acknowledged: true,
+  insertedId: ObjectId('6aefe768b44c8dd5b82e7c33')
+}
+Libreria>
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+PS C:\Users\DianaM> docker exec -it 653090ae1399 redis-cli
+127.0.0.1:6379> SET sesion:estudiente:23290660 "activo"
+OK
+127.0.0.1:6379> GET sesion:Estudiante:23290660
+(nil)
+127.0.0.1:6379> SET sesion:estudiente:23290551 "activo"
+OK
+127.0.0.1:6379> SET sesion:estudiente:23290364 "activo"
+OK
+127.0.0.1:6379> KEYS *
+1) "sesion:estudiente:23290364"
+2) "sesion:estudiente:23290551"
+3) "sesion:estudiente:23290660"
+127.0.0.1:6379>
